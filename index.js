@@ -106,6 +106,7 @@ async function main() {
   var colorMap = d3.scaleOrdinal().domain(data)
     .range(d3.schemeRdYlBu[subgroups.length]);
   
+    // stack the data per subgroup
   var stackedData = d3.stack()
     .keys(subgroups)(data);
   
@@ -114,9 +115,6 @@ async function main() {
   // set the dimensions and margins of the graph
   svg.attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom);
-  
-  // stack the data per subgroup
-  
   
   makeChart(svg, stackedData, x, y, colorMap);
   makeLegend(svg, subgroups, colorMap);
