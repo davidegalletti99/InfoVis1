@@ -36,20 +36,23 @@ function makeChart(svg, stackedData, x, y, colorMap) {
 
   // Show the bars
   chart.append("g")
+    .attr("id", "series")
     .selectAll("g")
     // Enter in the stack data = loop key per key = group per group
     .data(stackedData)
     .enter().append("g")  
+      .attr("class", "serie")
       .attr("fill", function(d) { return colorMap(d.key); })
       .selectAll("rect")
       // enter a second time = loop subgroup per subgroup to add all rectangles
       .data(function(d) { return d; })
       .enter().append("rect")
+        .attr("class", "bar")
         .attr("x", function(_, i) { return x(i); })
         .attr("y", function(d) { return y(d[1]); })
         .attr("height", function(d) { return y(d[0]) - y(d[1]); })
         .attr("hover", function(d) { return d; })
-        .attr("width",x.bandwidth());
+        .attr("width", x.bandwidth());
 };
 
 
@@ -106,7 +109,7 @@ async function main() {
   var colorMap = d3.scaleOrdinal().domain(data)
     .range(d3.schemeRdYlBu[subgroups.length]);
   
-    // stack the data per subgroup
+  // stack the data per subgroup
   var stackedData = d3.stack()
     .keys(subgroups)(data);
   
@@ -118,7 +121,31 @@ async function main() {
   
   makeChart(svg, stackedData, x, y, colorMap);
   makeLegend(svg, subgroups, colorMap);
+
+  d3.selectAll(".bar").on("click", function(event, i) {
+    var currentSerie = d3.select(this.parentNode);
+    var firstSerie = d3.select("#series").select(".serie");
+
+    firstKey = firstSerie.datum().key;
+    currentKey = currentSerie.datum().key;
+
+    currentSerie.transition().duration(1000).attr("fill", colorMap(firstSerie.datum().key));
+    firstSerie.transition().duration(1000).attr("fill", colorMap(currentSerie.datum().key));
+
+    currentSerie.datum().key = firstKey;
+    firstSerie.datum().key = currentKey;
+
+
+    // var tmp_data = currentSerie.datum().data;
+    // currentSerie.datum().data = firstSerie.datum().data;
+    // firstSerie.datum().data = tmp_data;
+
+    console.log(currentSerie.datum().key);
+    console.log(firstSerie.datum().key);
+
+  });
+
+
 };
 
 main();
-
