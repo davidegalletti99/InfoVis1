@@ -15,16 +15,14 @@ async function loadData() {
 };
 
 
-function drawChart(stackedData, x, y, colorMap) {
+function drawChart(stackedData, subgroups, x, y, colorMap) {
   svg = d3.select("#stacked-bars");
+
 
   // set the dimensions and margins of the graph
   svg.attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom);
 
-  // ogni barra è dedicata ad un data-point 
-  // ed è costituita dalla sovrapposizione delle cinque 
-  // barre relative alle cinque variabili del data-point
   chart = svg.append("g")
     .attr("id", "chart")
     .attr("transform",
@@ -40,10 +38,46 @@ function drawChart(stackedData, x, y, colorMap) {
   chart.append("g")
     .attr("id", "y-axis")
     .call(d3.axisLeft(y));
-  
-  series = chart.append("g").attr("id", "series");
 
-  // Show the bars
+  // // ----------------
+  // // Tooltip
+  // // ----------------
+  // // Three function that change the tooltip when user hover / move / leave a cell
+  // var mouseover = function(d) { 
+  //   var key = d3.select(this.parentNode).datum().key
+  //   var value = (d.target.__data__[1] - d.target.__data__[0])
+  //   var tooltip = d3.select("#tooltip")
+    
+  //   tooltip
+  //     .select("#value")
+  //     .text("value: " + value);
+    
+  //     tooltip
+  //     .select("#category")
+  //     .text("category: " + key);
+    
+  //   tooltip.classed("hidden", false);
+
+  //   //Get this bar's x/y values, then augment for the tooltip
+  //   var barHeight = parseFloat(d3.select(this).attr("height"));
+  //   var tooltipHeight = parseFloat(tooltip.node().getBoundingClientRect().height);
+  //   var xPosition = parseFloat(d3.select(this).attr("x")) + x.bandwidth() + 20;
+  //   var yPosition = parseFloat(d3.select(this).attr("y")) + barHeight / 2 + tooltipHeight / 2;
+
+  //   tooltip
+  //   .style("background-color", colorMap(key))
+  //   .style("left", xPosition + "px")
+  //   .style("top", yPosition + "px");
+  // };
+
+  // var mouseout = function() {
+  //   d3.select("#tooltip").classed("hidden", true);
+  // };
+
+  // ----------------
+  // Series
+  // ----------------
+  series = chart.append("g").attr("id", "series");
   series.selectAll("g")
     // Enter in the stack data = loop key per key = group per group
     .data(stackedData)
@@ -58,24 +92,29 @@ function drawChart(stackedData, x, y, colorMap) {
         .attr("x", function(_, i) { return x(i); })
         .attr("y", function(d) { return y(d[1]); })
         .attr("height", function(d) { return y(d[0]) - y(d[1]); })
-        .attr("width", x.bandwidth());
-  
-  series.selectAll("g").exit().remove();
-}
+        .attr("width", x.bandwidth())
+        .attr("stroke", "black");
+        // // show tooltip
+        // .on("mouseover", mouseover)
+        // // hide tooltip
+        // .on("mouseout", mouseout);
 
-function makeLegend(labels, colorMap) {
-  svg = d3.select("#stacked-bars");
+  series.selectAll(".serie").exit().remove();
+  
+  // ----------------
+  // Legend
+  // ----------------
   legend = svg.append("g")
     .attr("id", "legend")
     .attr("transform",
           "translate(" + (width + margin.left) + "," + (margin.top) + ")");
   // Add one dot in the legend for each name.
   legend.selectAll("circle")
-    .data(labels)
+    .data(subgroups)
     .enter().append("circle")
       .attr("class", "dot")
       .attr("cx", 0)
-      .attr("cy", function(_,i){ return (labels.length -1) * 25 - i*25;})
+      .attr("cy", function(_,i){ return (subgroups.length -1) * 25 - i*25;})
       .attr("r",  4)
       .attr("fill", function(d){ return colorMap(d)});
   
@@ -83,11 +122,11 @@ function makeLegend(labels, colorMap) {
 
   // Add one dot in the legend for each name.
   legend.selectAll("text")
-    .data(labels)
+    .data(subgroups)
     .enter().append("text")
       .attr("class", "label")
-      .attr("x",10)
-      .attr("y", function(_,i){ return (labels.length -1) * 25 - i*25; })
+      .attr("x", 10)
+      .attr("y", function(_,i){ return (subgroups.length -1) * 25 - i*25; })
       .attr("fill", function(d){ return colorMap(d)})
       .text(function(d){ return d; })
       .attr("text-anchor", "left")
@@ -97,7 +136,9 @@ function makeLegend(labels, colorMap) {
 
 };
 
-
+//----------------
+// Update
+//----------------
 async function update(stackedData, labels, x, y, colorMap) {
   var series = d3.select("#series");
   var legend = d3.select("#legend");
@@ -115,13 +156,13 @@ async function update(stackedData, labels, x, y, colorMap) {
   // Add one dot in the legend for each name.
   legend.selectAll(".dot")
     .data(labels).transition().duration(1000)
-      .attr("cy", function(_,i){ return (labels.length -1) * 25 - i * 25; })
+      .attr("cy", function(_,i){ return (labels.length - 1) * 25 - i * 25; })
       .attr("fill", function(d){ return colorMap(d)});
       
       // Add one dot in the legend for each name.
   legend.selectAll(".label")
     .data(labels).transition().duration(1000)
-      .attr("y", function(_,i){ return (labels.length -1) * 25 - i * 25; })
+      .attr("y", function(_,i){ return (labels.length - 1) * 25 - i * 25; })
       .text(function(d){ return d; })
       .attr("fill", function(d){ return colorMap(d)});
 
@@ -134,9 +175,12 @@ async function main() {
 
   // enumeration of the data-points
   var groups = d3.range(0, data.length);
-
+  
   // list of subgroups = one data case -> one of the staked bars of the final chart
   var subgroups = Object.keys(data[0]);
+  
+  // var colors = ['#ac92eb', '#4fc1e8', '#a0d568', '#ffce54', '#ed5564']
+  var colors = d3.schemeOrRd[subgroups.length]
 
   const maxHeight = d3.max(d3.map(data, function(d){return d3.sum(Object.values(d))}));
 
@@ -149,16 +193,16 @@ async function main() {
     .domain([0, maxHeight])
     .range([ height, 0 ]);
   
+
   // color palette = one color per subgroup
   var colorMap = d3.scaleOrdinal().domain(data)
-    .range(d3.schemeOrRd[subgroups.length]);
+    .range(colors);
   
   // stack the data per subgroup
   var stackedData = d3.stack()
     .keys(subgroups).order(d3.stackOrderNone)(data);
 
-  drawChart(stackedData, x, y, colorMap)
-  makeLegend(subgroups, colorMap);
+  drawChart(stackedData, subgroups, x, y, colorMap)
 
   d3.selectAll(".serie").on("click", function() {
     var currKey = d3.select(this).datum().key;
@@ -174,7 +218,6 @@ async function main() {
     
     stackedData = d3.stack().keys(subgroups).order(d3.stackOrderNone)(data);
     update(stackedData, subgroups, x, y, colorMap);
-
   });
 };
 
