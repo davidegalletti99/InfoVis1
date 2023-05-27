@@ -80,8 +80,7 @@ async function update(data, subgroups, x, y, colorMap) {
 
 
 function drawChart(data, subgroups, x, y, colorMap) {
-  var svg = d3.select("#stacked-bars");
-  chart = svg.select("#chart");
+  chart = d3.select("#chart");
 
   // stack the data per subgroup
   var stackedData = d3.stack()
@@ -164,6 +163,7 @@ function drawChart(data, subgroups, x, y, colorMap) {
   // Events
   // ----------------
 
+  // Add interactivity
   var onclick = function() {
     var currKey = d3.select(this).datum().key;
     var firstKey = subgroups[0];
@@ -194,7 +194,7 @@ function drawChart(data, subgroups, x, y, colorMap) {
     
     tooltip.classed("hidden", false);
 
-    //Get this bar's x/y values, then augment for the tooltip
+    // Get this bar's x/y values, then augment for the tooltip
     var barHeight = parseFloat(d3.select(this).attr("height"));
     var tooltipHeight = parseFloat(tooltip.node().getBoundingClientRect().height);
     var xPosition = parseFloat(d3.select(this).attr("x")) + x.bandwidth() + 20;
@@ -215,7 +215,6 @@ function drawChart(data, subgroups, x, y, colorMap) {
   };
   
   // add events //
-
   d3.selectAll(".serie")
     .on("click", onclick);
 
@@ -264,5 +263,7 @@ async function main() {
   addTooltip();
   drawChart(data, subgroups, x, y, colorMap)
 };
+
+
 
 main();
