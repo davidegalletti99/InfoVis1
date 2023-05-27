@@ -48,6 +48,7 @@ function addChart() {
 async function update(data, subgroups, x, y, colorMap) {
   var series = d3.select("#series");
   var legend = d3.select("#legend");
+  var tooltip = d3.select("#tooltip");
 
   // stack the data per subgroup
   var stackedData = d3.stack()
@@ -167,7 +168,7 @@ function drawChart(data, subgroups, x, y, colorMap) {
   var onclick = function() {
     var currKey = d3.select(this).datum().key;
     var firstKey = subgroups[0];
-
+    
     if (currKey == firstKey) {
       return;
     }
@@ -177,37 +178,58 @@ function drawChart(data, subgroups, x, y, colorMap) {
     subgroups[swapIdx] = firstKey;
     
     update(data, subgroups, x, y, colorMap);
+    
+    // var value = "evaluating...";
+    // var tooltip = d3.select("#tooltip");
+    // tooltip
+    //   .select("#value")
+    //   .text("value: " + value);
+    
+    // tooltip
+    //   .select("#category")
+    //   .text("category: " + firstKey);
+
+    // var backgroundColor = colorMap(firstKey);
+    // var textColor = computeContrastColor(backgroundColor);
+
+    // tooltip
+    //   .style("background-color", backgroundColor)
+    //   .style("color", textColor);
   };
 
-  var mouseover = function() { 
-    var key = d3.select(this.parentNode).datum().key
-    var value = (this.__data__[1] - this.__data__[0])
-    var tooltip = d3.select("#tooltip")
+  var mouseover = function() {
+    var tooltip = d3.select("#tooltip");
+    var key = d3.select(this.parentNode).datum().key;
+    var value = this.__data__[1] - this.__data__[0];
     
     tooltip
       .select("#value")
       .text("value: " + value);
     
-      tooltip
+    tooltip
       .select("#category")
       .text("category: " + key);
-    
-    tooltip.classed("hidden", false);
-
-    // Get this bar's x/y values, then augment for the tooltip
-    var barHeight = parseFloat(d3.select(this).attr("height"));
-    var tooltipHeight = parseFloat(tooltip.node().getBoundingClientRect().height);
-    var xPosition = parseFloat(d3.select(this).attr("x")) + x.bandwidth() + 20;
-    var yPosition = parseFloat(d3.select(this).attr("y")) + barHeight / 2 + tooltipHeight / 2;
 
     var backgroundColor = colorMap(key);
-    textColor = computeContrastColor(backgroundColor);
+    var textColor = computeContrastColor(backgroundColor);
 
     tooltip
-    .style("background-color", backgroundColor)
-    .style("color", textColor)
-    .style("left", xPosition + "px")
-    .style("top", yPosition + "px");
+      .style("background-color", backgroundColor)
+      .style("color", textColor);
+      
+    tooltip.classed("hidden", false);
+
+  };
+  
+  var onmousemove = function(d) {
+    var tooltip = d3.select("#tooltip");
+
+    var tooltipHeight = tooltip.node().getBoundingClientRect().height;
+    var tooltipWidth = tooltip.node().getBoundingClientRect().width;
+    
+    tooltip
+      .style("top", (d3.pointer(d)[1] + margin.top - tooltipHeight) + "px")
+      .style("left",(d3.pointer(d)[0] + margin.left - tooltipWidth) + "px");
   };
 
   var mouseout = function() {
@@ -221,6 +243,7 @@ function drawChart(data, subgroups, x, y, colorMap) {
   series.selectAll(".bar")
     // show tooltip
     .on("mouseover", mouseover)
+    .on("mousemove", onmousemove)
     // hide tooltip
     .on("mouseout", mouseout);
 };

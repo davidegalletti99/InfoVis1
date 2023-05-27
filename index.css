@@ -21,6 +21,7 @@ div {
 	-webkit-border-radius: 10px;
 	border-radius: 10px;
 	opacity: .95;
+	border: black solid 2px;
 	-moz-border-radius: 10px;
 	-webkit-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
 	-moz-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
