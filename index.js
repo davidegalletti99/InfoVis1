@@ -21,7 +21,7 @@ const legendHeight = .05 * totalHeight;
 // Utility functions
 //----------------
 
-function computeContrastColor(hexColor, trashold = .5) {
+function computeContrastColor(hexColor, trashold = .52) {
   return d3.hsl(hexColor).l > trashold ? "black" : "white";
 }
 
@@ -268,12 +268,18 @@ async function main() {
   // list of subgroups = one data case -> one of the staked bars of the final chart
   var subgroups = Object.keys(data[0]);
   
-  // var colors = ['#ac92eb', '#4fc1e8', '#a0d568', '#ffce54', '#ed5564'];
-  // var colors = d3.schemeOrRd[subgroups.length];
-  var colors = d3.schemeYlOrBr[subgroups.length];
-  // var colors = d3.schemeYlGnBu[subgroups.length];
-  // var colors = d3.schemePuBuGn[subgroups.length];
-  // var colors = d3.schemeBrBG[subgroups.length];
+  // var colors = ['#ac92eb', '#4fc1e8', '#a0d568', '#ffce54', '#ed5564']; // chromatic aberration but nice
+  // var colors = d3.schemeSpectral[subgroups.length]; // chromatic aberration
+  // var colors = d3.schemeRdYlGn[subgroups.length]; // chromatic aberration
+  // var colors = d3.schemeYlOrBr[subgroups.length]; // nice
+  var colors = d3.schemeOrRd[subgroups.length]; // nice
+  // var colors = d3.schemeGreens[subgroups.length]; // nice
+  // var colors = d3.schemeReds[subgroups.length]; // nice
+  // var colors = d3.schemeOranges[subgroups.length]; // nice
+  // var colors = d3.schemeRdGy[subgroups.length]; // problema with the background color but nice
+  // var colors = d3.schemeBuPu[subgroups.length]; // problem with the background color
+  // var colors = d3.schemePuRd[subgroups.length]; // problem with the background color
+  // var colors = d3.schemeBlues[subgroups.length]; // problem with the background color
 
   const maxHeight = d3.max(d3.map(data, function(d){return d3.sum(Object.values(d))}));
 
