@@ -1,16 +1,60 @@
 body {
-  background-color: #2f2f2f;
-  color: #ffffff;
-}
-div {
-  line-height: 15px;
-  margin-bottom: 3px;
+	background-color: #2f2f2f;
+	color: #ffffff;
+	padding: 0 0 0 0;
 }
 
+.title {
+	font-size: 50px;
+	font-weight: bold;
+	margin: 0 0 0 0;
+	font-family: 'Raleway', sans-serif;
+}
+
+.subtitle {
+	font-size: 25px;
+	font-weight: bold;
+	margin: 0 0 20 25;
+	font-family: "Heebo", sans-serif;
+}
+
+.flex-container {
+	display: flex;
+	flex-direction: column;
+}
+
+#container {
+	height: 100%;
+	width: 100%;
+}
+
+#dataviz {
+	flex: 1 0 auto;
+}
+
+#header {
+	flex: auto auto auto;
+}
+
+#stacked-bars {
+	flex: 1 0 auto;
+}
+
+#chart {
+	flex: 1 0 auto;
+	margin: 0 0 0 0;
+}
+
+#tooltip > div {
+	line-height: 15px;
+	margin-bottom: 3px;
+}
+
+
 .bar:hover {
-  cursor: pointer;
-  transition: opacity .2s ease-in-out;
-  opacity: .75;
+	cursor: pointer;
+	transition: opacity .2s ease-in-out;
+	opacity: .75;
 }
 
 #tooltip {

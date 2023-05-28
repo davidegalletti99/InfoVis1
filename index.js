@@ -7,15 +7,8 @@
 // Costants 
 //----------------
 
-const totalWidth = document.documentElement.clientWidth;
-const totalHeight = document.documentElement.clientHeight;
+const margin = {top: 0, right: 0, bottom: 10, left: 25};
 
-const margin = {top: .1 * totalHeight, right: .15 * totalWidth , bottom: .1 * totalHeight, left: .15 * totalWidth};
-const width = totalWidth - margin.left - margin.right;
-const height = totalHeight - margin.top - margin.bottom;
-
-const legendWidth = .1 * totalWidth;
-const legendHeight = .05 * totalHeight;
 
 //----------------
 // Utility functions
@@ -34,6 +27,8 @@ function addTooltip() {
     .append("div")
     .attr("id", "tooltip");
     
+  tooltip.classed("hidden", true);
+  
   tooltip.append("p")
     .append("span")
     .attr("id", "category")
@@ -48,8 +43,7 @@ function addTooltip() {
 function addChart() {
   d3.select("#stacked-bars")
     .append("g")
-    .attr("id", "chart") 
-    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    .attr("id", "chart");
 }
 
 //----------------
@@ -80,7 +74,7 @@ async function updateTooltip(data, that, colorMap, duration = 1000) {
   tooltip
     .select("#category")
     .text("category: " + category);
-}
+};
 
 async function update(data, subgroups, x, y, colorMap, duration = 1000) {
   var series = d3.select("#series");
@@ -121,12 +115,15 @@ async function update(data, subgroups, x, y, colorMap, duration = 1000) {
 
 function drawChart(data, subgroups, x, y, colorMap) {
   chart = d3.select("#chart");
+  chart.style("transform", "translate(" + margin.left + "px, -" + margin.bottom + "px)");
+  var height = y.range()[0];
+  var width = x.range()[1];
 
   // stack the data per subgroup
   var stackedData = d3.stack()
     .keys(subgroups).order(d3.stackOrderNone)(data);
-  
-  
+
+
   // add X axis
   chart.append("g")
     .attr("id", "x-axis")
@@ -169,7 +166,7 @@ function drawChart(data, subgroups, x, y, colorMap) {
   var legend = chart.append("g")
     .attr("id", "legend")
     .attr("transform",
-    "translate(" + (width) + ", 0)");
+    "translate(" + width + ", 0)");
   
       
   // Add the labeles in the legend for each name.
@@ -231,9 +228,12 @@ function drawChart(data, subgroups, x, y, colorMap) {
     var tooltipHeight = tooltip.node().getBoundingClientRect().height;
     var tooltipWidth = tooltip.node().getBoundingClientRect().width;
     
+
+    var coords = d3.pointer(d, d3.select("body").node());
+    
     tooltip
-      .style("top", (d3.pointer(d)[1] + margin.top - tooltipHeight) + "px")
-      .style("left",(d3.pointer(d)[0] + margin.left - tooltipWidth) + "px");
+      .style("left",(coords[0] - tooltipWidth) + "px")
+      .style("top", (coords[1] - tooltipHeight) + "px");
   };
 
   var mouseout = function() {
@@ -242,8 +242,6 @@ function drawChart(data, subgroups, x, y, colorMap) {
   
 
   // add events //
-  d3.selectAll(".serie")
-  
   series.selectAll(".bar")
     .on("click", onclick)
     // show tooltip
@@ -264,6 +262,12 @@ async function main() {
 
   // enumeration of the data-points
   var groups = d3.range(0, data.length);
+
+  var dataviz = d3.select("#dataviz");
+
+  var width = dataviz.node().getBoundingClientRect().width;
+  var height = dataviz.node().getBoundingClientRect().height;
+
   
   // list of subgroups = one data case -> one of the staked bars of the final chart
   var subgroups = Object.keys(data[0]);
@@ -285,21 +289,16 @@ async function main() {
 
   var x = d3.scaleBand()
       .domain(groups)
-      .range([0, width])
+      .range([0, width - margin.left - margin.right])
       .padding([0.2]);
   
   var y = d3.scaleLinear()
     .domain([0, maxHeight])
-    .range([ height, 0 ]);
+    .range([ height - margin.top - margin.bottom, 0 ]);
 
   // color palette = one color per subgroup
   var colorMap = d3.scaleOrdinal().domain(data)
     .range(colors);
-  
-  // set the dimensions and margins of the graph
-  var svg = d3.select("#stacked-bars");
-  svg.attr("width", width + margin.left + margin.right)
-    .attr("height", height + margin.top + margin.bottom);
 
   addChart();
   addTooltip();

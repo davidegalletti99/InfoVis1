@@ -1,17 +1,25 @@
 <!DOCTYPE html lang="it">
     <head>
-        <title>Home</title>
+        <title>Progetto InfoVis</title>
         <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
         <meta content="utf-8" http-equiv="encoding">
         <link rel="stylesheet" href="index.css">
         <script src="deps/d3.min.js"></script>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@900&family=Raleway:wght@900&display=swap" rel="stylesheet">
     </head>
     <body>
-        <div id="dataviz">
-            <svg id="stacked-bars">
-            </svg>
+        <div id="container" class="flex-container">
+            <div id="header">
+                <h1 class="title">Progetto InfoVis</h1>
+                <h2 class="subtitle">Stacked Bar Chart</h2>
+            </div>
+            <div id="dataviz" class="flex-container">
+                <svg id="stacked-bars"></svg>
+            </div>
         </div>
+        <script src="index.js"></script>
     </body>
-    <script src="index.js"></script>
 </html>
 
