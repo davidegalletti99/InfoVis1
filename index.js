@@ -1,4 +1,12 @@
-// document constants
+// ----------------
+// Author: Davide Glletti
+// Date: 2023/06/28
+// ----------------
+
+//----------------
+// Costants 
+//----------------
+
 const totalWidth = document.documentElement.clientWidth;
 const totalHeight = document.documentElement.clientHeight;
 
@@ -9,13 +17,17 @@ const height = totalHeight - margin.top - margin.bottom;
 const legendWidth = .1 * totalWidth;
 const legendHeight = .05 * totalHeight;
 
-function computeContrastColor(hexColor, trashold = 150) {
-  var red = parseInt(hexColor.substring(1,3), 16);
-  var green = parseInt(hexColor.substring(3,5), 16);
-  var blue = parseInt(hexColor.substring(5,7), 16);
+//----------------
+// Utility functions
+//----------------
 
-  return (red*0.299 + green*0.587 + blue*0.114) > trashold ? "black" : "white";
+function computeContrastColor(hexColor, trashold = .5) {
+  return d3.hsl(hexColor).l > trashold ? "black" : "white";
 }
+
+//----------------
+// Add functions
+//----------------
 
 function addTooltip() {
   var tooltip = d3.select("#dataviz")
@@ -31,7 +43,6 @@ function addTooltip() {
     .append("span")
     .attr("id", "value")
     .text("value");
-  
 }
 
 function addChart() {
@@ -41,44 +52,72 @@ function addChart() {
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 }
 
+//----------------
+// Update functions
+//----------------
 
-//----------------
-// Update
-//----------------
-async function update(data, subgroups, x, y, colorMap) {
+async function updateTooltip(data, that, colorMap, duration = 1000) {
+  var currBar = d3.select(that).node();
+  var bars = d3.select(that.parentNode).selectAll(".bar").nodes();
+  
+  var idx = bars.indexOf(currBar);
+  var category = d3.select(that.parentNode).datum().key;
+  
+  var backgroundColor = colorMap(category);
+  var textColor = computeContrastColor(backgroundColor);
+  
+  var tooltip = d3.select("#tooltip");
+
+
+  tooltip.transition().duration(duration)
+    .style("background-color", backgroundColor)
+    .style("color", textColor);
+
+  tooltip
+    .select("#value")
+    .text("value: " + data[idx][category]);
+  
+  tooltip
+    .select("#category")
+    .text("category: " + category);
+}
+
+async function update(data, subgroups, x, y, colorMap, duration = 1000) {
   var series = d3.select("#series");
   var legend = d3.select("#legend");
-  var tooltip = d3.select("#tooltip");
 
   // stack the data per subgroup
   var stackedData = d3.stack()
     .keys(subgroups).order(d3.stackOrderNone)(data);
 
   // Update color
-  series.selectAll(".serie").data(stackedData).transition().duration(1000)
+  series.selectAll(".serie").data(stackedData).transition().duration(duration)
     .attr("fill", function(d) { return colorMap(d.key); });
   
     // Update height and y position
   series.selectAll(".serie").selectAll(".bar")
-    .data(function(d) { return d; }).transition().duration(1000)
+    .data(function(d) { return d; }).transition().duration(duration)
     .attr("y", function(d) { return y(d[1]); })
     .attr("height", function(d) { return y(d[0]) - y(d[1]); });
 
   // Add one dot in the legend for each name.
   legend.selectAll(".dot")
-    .data(subgroups).transition().duration(1000)
+    .data(subgroups).transition().duration(duration)
       .attr("cy", function(_,i){ return (subgroups.length - 1) * 25 - i * 25; })
       .attr("fill", function(d){ return colorMap(d)});
       
       // Add one dot in the legend for each name.
   legend.selectAll(".label")
-    .data(subgroups).transition().duration(1000)
+    .data(subgroups).transition().duration(duration)
       .attr("y", function(_,i){ return (subgroups.length - 1) * 25 - i * 25; })
       .text(function(d){ return d; })
       .attr("fill", function(d){ return colorMap(d)});
 
 };
 
+//----------------
+// Draw frunctions
+//----------------
 
 function drawChart(data, subgroups, x, y, colorMap) {
   chart = d3.select("#chart");
@@ -166,7 +205,7 @@ function drawChart(data, subgroups, x, y, colorMap) {
 
   // Add interactivity
   var onclick = function() {
-    var currKey = d3.select(this).datum().key;
+    var currKey = d3.select(this.parentNode).datum().key;
     var firstKey = subgroups[0];
     
     if (currKey == firstKey) {
@@ -178,47 +217,12 @@ function drawChart(data, subgroups, x, y, colorMap) {
     subgroups[swapIdx] = firstKey;
     
     update(data, subgroups, x, y, colorMap);
-    
-    // var value = "evaluating...";
-    // var tooltip = d3.select("#tooltip");
-    // tooltip
-    //   .select("#value")
-    //   .text("value: " + value);
-    
-    // tooltip
-    //   .select("#category")
-    //   .text("category: " + firstKey);
-
-    // var backgroundColor = colorMap(firstKey);
-    // var textColor = computeContrastColor(backgroundColor);
-
-    // tooltip
-    //   .style("background-color", backgroundColor)
-    //   .style("color", textColor);
+    updateTooltip(data, this, colorMap);
   };
 
   var mouseover = function() {
-    var tooltip = d3.select("#tooltip");
-    var key = d3.select(this.parentNode).datum().key;
-    var value = this.__data__[1] - this.__data__[0];
-    
-    tooltip
-      .select("#value")
-      .text("value: " + value);
-    
-    tooltip
-      .select("#category")
-      .text("category: " + key);
-
-    var backgroundColor = colorMap(key);
-    var textColor = computeContrastColor(backgroundColor);
-
-    tooltip
-      .style("background-color", backgroundColor)
-      .style("color", textColor);
-      
-    tooltip.classed("hidden", false);
-
+    updateTooltip(data, this, colorMap, 0);
+    d3.select("#tooltip").classed("hidden", false);
   };
   
   var onmousemove = function(d) {
@@ -236,11 +240,12 @@ function drawChart(data, subgroups, x, y, colorMap) {
     d3.select("#tooltip").classed("hidden", true);
   };
   
+
   // add events //
   d3.selectAll(".serie")
-    .on("click", onclick);
-
+  
   series.selectAll(".bar")
+    .on("click", onclick)
     // show tooltip
     .on("mouseover", mouseover)
     .on("mousemove", onmousemove)
@@ -248,6 +253,10 @@ function drawChart(data, subgroups, x, y, colorMap) {
     .on("mouseout", mouseout);
 };
 
+
+//----------------
+// Main
+//----------------
 
 async function main() {
   // load data
@@ -259,8 +268,12 @@ async function main() {
   // list of subgroups = one data case -> one of the staked bars of the final chart
   var subgroups = Object.keys(data[0]);
   
-  // var colors = ['#ac92eb', '#4fc1e8', '#a0d568', '#ffce54', '#ed5564']
-  var colors = d3.schemeOrRd[subgroups.length];
+  // var colors = ['#ac92eb', '#4fc1e8', '#a0d568', '#ffce54', '#ed5564'];
+  // var colors = d3.schemeOrRd[subgroups.length];
+  var colors = d3.schemeYlOrBr[subgroups.length];
+  // var colors = d3.schemeYlGnBu[subgroups.length];
+  // var colors = d3.schemePuBuGn[subgroups.length];
+  // var colors = d3.schemeBrBG[subgroups.length];
 
   const maxHeight = d3.max(d3.map(data, function(d){return d3.sum(Object.values(d))}));
 
