@@ -14,7 +14,7 @@ body {
 .subtitle {
 	font-size: 25px;
 	font-weight: bold;
-	margin: 0 0 20 25;
+	margin: 0 0 0 25;
 	font-family: "Heebo", sans-serif;
 }
 
@@ -30,6 +30,7 @@ body {
 
 #dataviz {
 	flex: 1 0 auto;
+	margin: 0 0 0 0;
 }
 
 #header {
@@ -45,11 +46,11 @@ body {
 	margin: 0 0 0 0;
 }
 
-#tooltip > div {
-	line-height: 15px;
-	margin-bottom: 3px;
-}
 
+.bar {
+	stroke: black;
+	stroke-width: 2px;
+}
 
 .bar:hover {
 	cursor: pointer;
@@ -70,6 +71,13 @@ body {
 	-moz-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
 	box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
 	pointer-events: none;
+
+	font-family: "Heebo", sans-serif;
+}
+
+#tooltip > div {
+	line-height: 15px;
+	margin-bottom: 3px;
 }
 			
 #tooltip.hidden {

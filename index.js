@@ -7,7 +7,8 @@
 // Costants 
 //----------------
 
-const margin = {top: 0, right: 0, bottom: 10, left: 25};
+const margin = {top: 20, right: 0, bottom: 2, left: 25};
+const strokeWidth = 2;
 
 
 //----------------
@@ -115,7 +116,7 @@ async function update(data, subgroups, x, y, colorMap, duration = 1000) {
 
 function drawChart(data, subgroups, x, y, colorMap) {
   chart = d3.select("#chart");
-  chart.style("transform", "translate(" + margin.left + "px, -" + margin.bottom + "px)");
+  chart.style("transform", "translate(" + margin.left + "px, " + margin.bottom + "px)");
   var height = y.range()[0];
   var width = x.range()[1];
 
@@ -127,7 +128,7 @@ function drawChart(data, subgroups, x, y, colorMap) {
   // add X axis
   chart.append("g")
     .attr("id", "x-axis")
-    .attr("transform", "translate(0," + height + ")")
+    .attr("transform", "translate(0," + (height + strokeWidth)  + ")")
     .call(d3.axisBottom(x).tickSizeOuter(0));
 
   // add Y axis (invertito per via della convenzione utilizzata)
@@ -155,8 +156,7 @@ function drawChart(data, subgroups, x, y, colorMap) {
         .attr("x", function(_, i) { return x(i); })
         .attr("y", function(d) { return y(d[1]); })
         .attr("height", function(d) { return y(d[0]) - y(d[1]); })
-        .attr("width", x.bandwidth())
-        .attr("stroke", "black");
+        .attr("width", x.bandwidth());
 
   series.selectAll(".serie").exit().remove();
 
@@ -272,6 +272,7 @@ async function main() {
   // list of subgroups = one data case -> one of the staked bars of the final chart
   var subgroups = Object.keys(data[0]);
   
+  // color shema
   // var colors = ['#ac92eb', '#4fc1e8', '#a0d568', '#ffce54', '#ed5564']; // chromatic aberration but nice
   // var colors = d3.schemeSpectral[subgroups.length]; // chromatic aberration
   // var colors = d3.schemeRdYlGn[subgroups.length]; // chromatic aberration
@@ -294,7 +295,7 @@ async function main() {
   
   var y = d3.scaleLinear()
     .domain([0, maxHeight])
-    .range([ height - margin.top - margin.bottom, 0 ]);
+    .range([height - margin.top - margin.bottom - strokeWidth / 2, 0 ]);
 
   // color palette = one color per subgroup
   var colorMap = d3.scaleOrdinal().domain(data)
