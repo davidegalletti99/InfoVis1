@@ -14,7 +14,7 @@ body {
 .subtitle {
 	font-size: 25px;
 	font-weight: bold;
-	margin: 0 0 0 25;
+	margin: 0 0 0 30;
 	font-family: "Heebo", sans-serif;
 }
 
@@ -46,6 +46,15 @@ body {
 	margin: 0 0 0 0;
 }
 
+#x-axis {
+	font-family: "Heebo", sans-serif;
+	stroke-width: 2;
+}
+
+#y-axis {
+	font-family: "Heebo", sans-serif;
+	stroke-width: 2;
+}
 
 .bar {
 	stroke: black;
@@ -56,6 +65,16 @@ body {
 	cursor: pointer;
 	transition: opacity .2s ease-in-out;
 	opacity: .75;
+}
+
+text {
+	fill: white;
+	font-family: "Heebo", sans-serif;
+}
+
+text.total-value {
+	font-size: 15px;
+	text-anchor: middle;
 }
 
 #tooltip {

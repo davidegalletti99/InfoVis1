@@ -20,9 +20,15 @@ nel range dei valori che ti servono, che invece è determinato
 dalla tua interfaccia.
 =======================================================
 
-  Il progetto dovrà essere svolto individualmente utilizzando JavaScript e D3.js entro il 7 giugno 2023. Per la consegna è sufficiente che tu risponda a questa mail fornendo un link al progetto messo a disposizione su github. La valutazione di questo mini-progetto individuale peserà tre punti sul voto finale.
+  Il progetto dovrà essere svolto individualmente utilizzando 
+  JavaScript e D3.js entro il 7 giugno 2023. 
+  Per la consegna è sufficiente che tu risponda a questa mail 
+  fornendo un link al progetto messo a disposizione su github. 
+  La valutazione di questo mini-progetto individuale peserà tre 
+  punti sul voto finale.
 
-  Per qualsiasi domanda di carattere organizzativo o tecnico sono a tua disposizione.
+  Per qualsiasi domanda di carattere organizzativo o tecnico 
+  sono a tua disposizione.
 
 A presto,
 Maurizio

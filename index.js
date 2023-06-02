@@ -3,11 +3,22 @@
 // Date: 2023/06/28
 // ----------------
 
+d3.selection.prototype.first = function() {
+  return d3.select(this.nodes()[0]);
+};
+d3.selection.prototype.last = function() {
+  var last = this.size() - 1;
+  if (last < 0) 
+    return d3.select(null);
+
+  return d3.select(this.nodes()[last]);
+};
+
 //----------------
 // Costants 
 //----------------
 
-const margin = {top: 20, right: 0, bottom: 2, left: 25};
+const margin = {top: 25, right: 0, bottom: 25, left: 30};
 const strokeWidth = 2;
 
 
@@ -15,7 +26,7 @@ const strokeWidth = 2;
 // Utility functions
 //----------------
 
-function computeContrastColor(hexColor, trashold = .52) {
+function computeContrastColor(hexColor, trashold = .6) {
   return d3.hsl(hexColor).l > trashold ? "black" : "white";
 }
 
@@ -46,6 +57,39 @@ function addChart() {
     .append("g")
     .attr("id", "chart");
 }
+
+
+function addTotalValue(totals) {
+  var rects = d3.selectAll('.serie').last()
+    .selectAll('.bar');
+  
+  var textData = [];
+  rects.each(function(d,i) {
+    textDatum = {
+      width: d3.select(this).attr('width'),
+      height: d3.select(this).attr('height'),
+      y: parseFloat(d3.select(this).attr('y')),
+      x: parseFloat(d3.select(this).attr('x')),
+      text: d3.format(".3s")(totals[i]),
+      };
+    textData.push(textDatum);
+
+  });
+
+  var text = d3.select('.serie')
+    .selectAll('.total-value')
+    .data(textData)
+    .enter()
+    .append('text')
+      .text(d => d.text)
+      .attr('class', 'total-value')
+      .attr('y', d => {
+        return d.y - 8;
+      })
+      .attr('x', d => {
+        return d.x + d.width / 2;
+      });
+};
 
 //----------------
 // Update functions
@@ -116,7 +160,7 @@ async function update(data, subgroups, x, y, colorMap, duration = 1000) {
 
 function drawChart(data, subgroups, x, y, colorMap) {
   chart = d3.select("#chart");
-  chart.style("transform", "translate(" + margin.left + "px, " + margin.bottom + "px)");
+  chart.style("transform", "translate(" + margin.left + "px, " + margin.top + "px)");
   var height = y.range()[0];
   var width = x.range()[1];
 
@@ -128,7 +172,7 @@ function drawChart(data, subgroups, x, y, colorMap) {
   // add X axis
   chart.append("g")
     .attr("id", "x-axis")
-    .attr("transform", "translate(0," + (height + strokeWidth)  + ")")
+    .attr("transform", "translate(0, " + height  + ")")
     .call(d3.axisBottom(x).tickSizeOuter(0));
 
   // add Y axis (invertito per via della convenzione utilizzata)
@@ -246,6 +290,7 @@ function drawChart(data, subgroups, x, y, colorMap) {
     .on("click", onclick)
     // show tooltip
     .on("mouseover", mouseover)
+    // move tooltip
     .on("mousemove", onmousemove)
     // hide tooltip
     .on("mouseout", mouseout);
@@ -281,12 +326,14 @@ async function main() {
   // var colors = d3.schemeGreens[subgroups.length]; // nice
   // var colors = d3.schemeReds[subgroups.length]; // nice
   // var colors = d3.schemeOranges[subgroups.length]; // nice
-  // var colors = d3.schemeRdGy[subgroups.length]; // problema with the background color but nice
-  // var colors = d3.schemeBuPu[subgroups.length]; // problem with the background color
-  // var colors = d3.schemePuRd[subgroups.length]; // problem with the background color
   // var colors = d3.schemeBlues[subgroups.length]; // problem with the background color
+  // var colors = d3.schemeRdGy[subgroups.length]; // problema with the background color but nice
 
+  // Compute the max height of the chart
   const maxHeight = d3.max(d3.map(data, function(d){return d3.sum(Object.values(d))}));
+
+  // Compute the total sum for each data-point
+  var totals = data.map(function(d) { return d3.sum(Object.values(d)); });
 
   var x = d3.scaleBand()
       .domain(groups)
@@ -295,7 +342,7 @@ async function main() {
   
   var y = d3.scaleLinear()
     .domain([0, maxHeight])
-    .range([height - margin.top - margin.bottom - strokeWidth / 2, 0 ]);
+    .range([height - margin.top - margin.bottom, 0 ]);
 
   // color palette = one color per subgroup
   var colorMap = d3.scaleOrdinal().domain(data)
@@ -303,7 +350,9 @@ async function main() {
 
   addChart();
   addTooltip();
-  drawChart(data, subgroups, x, y, colorMap)
+  drawChart(data, subgroups, x, y, colorMap);
+  addTotalValue(totals);
+
 };
 
 
