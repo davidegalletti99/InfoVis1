@@ -139,19 +139,6 @@ async function update(data, subgroups, x, y, colorMap, duration = 1000) {
     .attr("y", function(d) { return y(d[1]); })
     .attr("height", function(d) { return y(d[0]) - y(d[1]); });
 
-  // Add one dot in the legend for each name.
-  legend.selectAll(".dot")
-    .data(subgroups).transition().duration(duration)
-      .attr("cy", function(_,i){ return (subgroups.length - 1) * 25 - i * 25; })
-      .attr("fill", function(d){ return colorMap(d)});
-      
-      // Add one dot in the legend for each name.
-  legend.selectAll(".label")
-    .data(subgroups).transition().duration(duration)
-      .attr("y", function(_,i){ return (subgroups.length - 1) * 25 - i * 25; })
-      .text(function(d){ return d; })
-      .attr("fill", function(d){ return colorMap(d)});
-
 };
 
 //----------------
@@ -212,32 +199,6 @@ function drawChart(data, subgroups, x, y, colorMap) {
     .attr("transform",
     "translate(" + width + ", 0)");
   
-      
-  // Add the labeles in the legend for each name.
-  legend.selectAll("text")
-    .data(subgroups)
-    .enter().append("text")
-    .attr("class", "label")
-    .attr("x", 10)
-    .attr("y", function(_,i){ return (subgroups.length -1) * 25 - i*25; })
-    .attr("fill", function(d){ return colorMap(d)})
-    .text(function(d){ return d; })
-    .attr("text-anchor", "left")
-    .style("alignment-baseline", "middle");
-  
-  legend.selectAll(".label").exit().remove();
-  
-  // Add one dot in the legend for each name.
-  legend.selectAll("circle")
-    .data(subgroups)
-    .enter().append("circle")
-    .attr("class", "dot")
-    .attr("cx", 0)
-    .attr("cy", function(_,i){ return (subgroups.length - 1) * 25 - i*25;})
-    .attr("r",  4)
-    .attr("fill", function(d){ return colorMap(d)});
-  
-  legend.selectAll(".dot").exit().remove();
   
 
   // ----------------
