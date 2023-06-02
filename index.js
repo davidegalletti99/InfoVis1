@@ -44,12 +44,12 @@ function addTooltip() {
   tooltip.append("p")
     .append("span")
     .attr("id", "category")
-    .text("category");
+    .text("Category");
     
   tooltip.append("p")
     .append("span")
     .attr("id", "value")
-    .text("value");
+    .text("Value");
 }
 
 function addChart() {
@@ -114,11 +114,11 @@ async function updateTooltip(data, that, colorMap, duration = 1000) {
 
   tooltip
     .select("#value")
-    .text("value: " + data[idx][category]);
+    .text("Value: " + data[idx][category]);
   
   tooltip
     .select("#category")
-    .text("category: " + category);
+    .text("Category: " + category);
 };
 
 async function update(data, subgroups, x, y, colorMap, duration = 1000) {
