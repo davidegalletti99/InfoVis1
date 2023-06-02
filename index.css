@@ -90,23 +90,17 @@ text.total-value {
 	-moz-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
 	box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
 	pointer-events: none;
-
-	font-family: "Heebo", sans-serif;
-}
-
-#tooltip > div {
-	line-height: 15px;
 	margin-bottom: 3px;
 }
-			
+
 #tooltip.hidden {
 	display: none;
 }
-			
+
 #tooltip p {
 	margin: 0;
-	font-family: sans-serif;
-	font-size: 16px;
+	font-family: "Heebo", sans-serif;
+	font-size: 15px;
 	line-height: 20px;
 }
 
