@@ -1,7 +1,7 @@
 # InfoVis1
 Repository del primo progetto di InfoVis
 
-# Testo del progetto:
+# Testo del progetto
 * Crea un file json con dei dati multivariati: 
     + ci sono 10 data-cases
     + ogni data-case ha cinque variabili quantitative (i cui valori sono tutti positivi).
